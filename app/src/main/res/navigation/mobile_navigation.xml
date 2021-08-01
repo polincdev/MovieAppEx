@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/men_mov_pop">
+
+    <fragment
+        android:id="@+id/men_mov_pop"
+        android:name="com.polinc.movieappex.ui.movies.PopularRecyclerFragment"
+        android:label="@string/menu_pop"
+        tools:layout="@layout/popular_recycler_fragment" />
+
+    <fragment
+        android:id="@+id/men_mov_top"
+        android:name="com.polinc.movieappex.ui.movies.TopratedRecyclerFragment"
+        android:label="@string/menu_top"
+        tools:layout="@layout/toprated_recycler_fragment" />
+
+    <fragment
+        android:id="@+id/men_mov_up"
+        android:name="com.polinc.movieappex.ui.movies.UpcomingRecyclerFragment"
+        android:label="@string/menu_up"
+        tools:layout="@layout/upcoming_recycler_fragment" />
+
+
+
+</navigation>
