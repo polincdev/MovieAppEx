@@ -21,6 +21,8 @@ import com.google.android.material.navigation.NavigationView;
 import com.polinc.movieappex.R;
 import com.polinc.movieappex.data.InitDataSource;
 import com.polinc.movieappex.databinding.ActivityMoviesBinding;
+import com.polinc.movieappex.ui.intro.IntroSlider;
+import com.polinc.movieappex.ui.intro.MyCustomOnboarder;
 import com.polinc.movieappex.ui.login.LoginActivity;
 import com.polinc.movieappex.ui.search.SearchActivity;
 
@@ -49,6 +51,9 @@ public class MoviesActivity extends AppCompatActivity   {
        System.out.println("onCreate 1111111111111111111111111");
         super.onCreate(savedInstanceState);
 
+        //Intro
+        Intent i =new Intent(getApplicationContext(), IntroSlider.class);
+        startActivity(i);
 
         //setContentView(R.layout.activity_movies_popular);
         ActivityMoviesBinding binding = ActivityMoviesBinding.inflate(getLayoutInflater());

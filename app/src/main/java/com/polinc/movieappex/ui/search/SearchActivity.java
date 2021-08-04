@@ -17,6 +17,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
@@ -30,7 +31,7 @@ import com.polinc.movieappex.models.Movie;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SearchActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class SearchActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, BottomNavigationView.OnNavigationItemSelectedListener {
 
     DrawerLayout drawer;
     ActivitySearchBinding binding;
@@ -40,7 +41,7 @@ public class SearchActivity extends AppCompatActivity implements NavigationView.
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-          binding = ActivitySearchBinding.inflate(getLayoutInflater());
+        binding = ActivitySearchBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         Toolbar toolbar=binding.toolbar;
         setSupportActionBar(binding.toolbar);
@@ -92,7 +93,8 @@ public class SearchActivity extends AppCompatActivity implements NavigationView.
         NavigationView navigationView = binding.navView;
         navigationView.setNavigationItemSelectedListener(this);
 
-
+        BottomNavigationView bottomNavigationView =binding.bottomNavigationView;
+        bottomNavigationView.setOnNavigationItemSelectedListener(this);
     }
 
     @Override
@@ -132,7 +134,16 @@ public class SearchActivity extends AppCompatActivity implements NavigationView.
             Toast.makeText(getApplicationContext(), "Send is clicked", Toast.LENGTH_SHORT).show();
 
         }
-
+        //Bottom
+        else if (id == R.id.men_sea_bot_one) {
+            Toast.makeText(getApplicationContext(), "One is clicked", Toast.LENGTH_SHORT).show();
+         }
+        else if (id == R.id.men_sea_bot_two) {
+            Toast.makeText(getApplicationContext(), "One is clicked", Toast.LENGTH_SHORT).show();
+        }
+        else if (id == R.id.men_sea_bot_three) {
+            Toast.makeText(getApplicationContext(), "One is clicked", Toast.LENGTH_SHORT).show();
+        }
         DrawerLayout drawer = binding.drawerLayout;
         drawer.closeDrawer(GravityCompat.START);
         return true;

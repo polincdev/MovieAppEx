@@ -3,21 +3,47 @@ package com.polinc.movieappex.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import androidx.annotation.NonNull;
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+
 import com.google.gson.annotations.SerializedName;
 
+@Entity
 public class Movie implements Parcelable {
+    @NonNull
+    @PrimaryKey
     private String id;
+
+    @ColumnInfo(name = "overview")
     private String overview;
+
+    @ColumnInfo(name = "release_date")
     @SerializedName("release_date")
     private String releaseDate;
+
+    @ColumnInfo(name = "poster_path")
     @SerializedName("poster_path")
     private String posterPath;
+
+    @ColumnInfo(name = "backdrop_path")
     @SerializedName("backdrop_path")
     private String backdropPath;
+
+    @ColumnInfo(name = "title")
     private String title;
+
+    @ColumnInfo(name = "vote_average")
     @SerializedName("vote_average")
     private double voteAverage;
+
+    @ColumnInfo(name = "order")
      public int order=0;
+
+    @ColumnInfo(name = "batch")
+    public int batch=0;
+
     public Movie() {
 
     }

@@ -7,6 +7,7 @@ import com.polinc.movieappex.di.AppModule;
 import com.polinc.movieappex.di.DaggerAppComponent;
 import com.polinc.movieappex.net.MoviesGetController;
 import com.polinc.movieappex.net.NetworkModule;
+import com.polinc.movieappex.room.MoviesRetrieveController;
 
 import javax.inject.Inject;
 
@@ -23,6 +24,8 @@ import dagger.android.HasAndroidInjector;
   public AppComponent appComponent;
   @Inject
   public MoviesGetController moviesGetController ;
+  @Inject
+  public MoviesRetrieveController moviesRetrieveController ;
 
   @Override
   public void onCreate(){

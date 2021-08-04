@@ -37,6 +37,8 @@ import com.polinc.movieappex.main.MyApplication;
 import com.polinc.movieappex.models.Movie;
 import com.polinc.movieappex.models.MoviesWraper;
 import com.polinc.movieappex.databinding.ActivityLoginBinding;
+import com.polinc.movieappex.ui.intro.IntroSlider;
+import com.polinc.movieappex.ui.intro.MyCustomOnboarder;
 import com.polinc.movieappex.ui.movies.MoviesActivity;
 
 import java.util.ArrayList;
@@ -58,6 +60,11 @@ public class LoginActivity extends AppCompatActivity {
         ((MyApplication) getApplicationContext()).appComponent.inject(this);
 
         super.onCreate(savedInstanceState);
+
+
+        //Intro
+        Intent i =new Intent(getApplicationContext(), MyCustomOnboarder.class);
+        startActivity(i);
 
         binding = ActivityLoginBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());

@@ -6,7 +6,7 @@ import android.graphics.Typeface;
 public class TypeFactory {
 
     private String DEJA_BOLD= "DejaVuSansBold.ttf";
-    private String DEJA_ITALIC="DejaVuSansItalics.ttf";
+    private String DEJA_ITALIC= "DejaVuSansItalics.ttf";
     private String DEJA_REGULAR= "DejaVuSansRegular.ttf";
 
     Typeface dejaBold;

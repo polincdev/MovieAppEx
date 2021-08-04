@@ -1,17 +1,17 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/men_mov_pop"
+        android:id="@+id/men_sea_bot_one"
         android:enabled="true"
         android:icon="@drawable/ic_menu_camera"
         android:title="@string/menu_pop" />
     <item
-        android:id="@+id/men_mov_top"
+        android:id="@+id/men_sea_bot_two"
         android:enabled="true"
         android:icon="@drawable/ic_menu_gallery"
         android:title="@string/menu_top" />
 
     <item
-        android:id="@+id/men_mov_up"
+        android:id="@+id/men_sea_bot_three"
         android:enabled="true"
         android:icon="@drawable/ic_menu_slideshow"
         android:title="@string/menu_up" />
