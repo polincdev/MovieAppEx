@@ -1,6 +1,7 @@
 package com.polinc.movieappex.ui.search;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 
 import android.view.Menu;
@@ -16,27 +17,41 @@ import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 import com.polinc.movieappex.R;
 
 import com.polinc.movieappex.databinding.ActivitySearchBinding;
+import com.polinc.movieappex.main.MyApplication;
 import com.polinc.movieappex.models.Movie;
-
+import com.polinc.movieappex.models.MoviesWraper;
+import com.polinc.movieappex.room.MoviesRetrieveController;
 
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+
+import io.reactivex.rxjava3.core.Completable;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Single;
+import io.reactivex.rxjava3.observers.DisposableCompletableObserver;
+import io.reactivex.rxjava3.observers.DisposableSingleObserver;
 
 public class SearchActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, BottomNavigationView.OnNavigationItemSelectedListener {
 
     DrawerLayout drawer;
     ActivitySearchBinding binding;
-    SearchRecyclerFragment popularRecyclerFragment;
+    SearchRecyclerFragment searchRecyclerFragment;
     ProgressBar loadingProgressBar;
+    MoviesRetrieveController moviesRetrieveController;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,11 +63,13 @@ public class SearchActivity extends AppCompatActivity implements NavigationView.
          getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
+        moviesRetrieveController =  ((MyApplication)this.getApplication()).moviesRetrieveController;
+
 
         if (savedInstanceState == null) {
-                popularRecyclerFragment= SearchRecyclerFragment.newInstance();
+            searchRecyclerFragment= SearchRecyclerFragment.newInstance();
             getSupportFragmentManager().beginTransaction()
-                     .replace(R.id.search_frag_container, popularRecyclerFragment )
+                     .replace(R.id.search_frag_container, searchRecyclerFragment )
                     .commitNow();
         }
 
@@ -136,19 +153,93 @@ public class SearchActivity extends AppCompatActivity implements NavigationView.
         }
         //Bottom
         else if (id == R.id.men_sea_bot_one) {
-            Toast.makeText(getApplicationContext(), "One is clicked", Toast.LENGTH_SHORT).show();
-         }
+
+            AsyncTask.execute(new Runnable() {
+                @Override
+                public void run() {
+                    moviesRetrieveController.saveMovies(searchRecyclerFragment.adapter.getCurrentMovies());
+
+                    runOnUiThread(new Runnable() {
+                        public void run() {
+                            Toast.makeText(getApplicationContext(), "Movies saved", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            });
+
+        }
         else if (id == R.id.men_sea_bot_two) {
-            Toast.makeText(getApplicationContext(), "One is clicked", Toast.LENGTH_SHORT).show();
+          /*  LiveData<List<Movie>> result =  moviesRetrieveController.getMoviesAll();
+            result.observe(this, new Observer<List<Movie>>() {
+                @Override
+                public void onChanged(List<Movie> movies) {
+                    onMovieBatchGetSuccess(movies);
+                }
+            });*/
+            ListenableFuture<List<Movie>> future =  moviesRetrieveController.getMoviesAll();
+            future.addListener(new Runnable() {
+                @Override
+                public void run() {
+                    List<Movie> movies=null;
+                    try {
+                        movies = future.get();
+                    } catch (ExecutionException e) {
+                        e.printStackTrace();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                    List<Movie> finalMovies = movies;
+                    runOnUiThread(new Runnable() {
+                        public void run() {
+                            onMovieBatchGetSuccess(finalMovies);
+                        }
+                    });
+                }
+            },
+               MoreExecutors.directExecutor()
+
+            );
+
+
         }
         else if (id == R.id.men_sea_bot_three) {
-            Toast.makeText(getApplicationContext(), "One is clicked", Toast.LENGTH_SHORT).show();
+
+
+            AsyncTask.execute(new Runnable() {
+                @Override
+                public void run() {
+                    moviesRetrieveController.cleanDB( );
+
+                    runOnUiThread(new Runnable() {
+                        public void run() {
+                            Toast.makeText(getApplicationContext(), "DB cleaned", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            });
+
+
         }
         DrawerLayout drawer = binding.drawerLayout;
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
 
+    void onMovieBatchGetSuccess(List<Movie> movies)
+       {
+             Toast.makeText(getApplicationContext(), "Movies retrieved "+movies.size(), Toast.LENGTH_SHORT).show();
+        }
+    void onMovieBatchSaveSuccess()
+    {
+        Toast.makeText(getApplicationContext(), "Movies saved", Toast.LENGTH_SHORT).show();
+    }
+    private void onDBFailed(Throwable e) {
+
+       e.printStackTrace();
+         Toast.makeText(getApplicationContext(), "Operation failed", Toast.LENGTH_SHORT).show();
+
+    }
     @Override
     public void startActivity(Intent intent) {
         super.startActivity(intent);
@@ -182,9 +273,9 @@ public class SearchActivity extends AppCompatActivity implements NavigationView.
             @Override
             public boolean onQueryTextChange(String newText) {
 
-                final List<Movie> filteredModelList = filter(popularRecyclerFragment.movies, newText);
-                popularRecyclerFragment.adapter.replaceAll(filteredModelList);
-                popularRecyclerFragment.binding.rvMoviesPopular.scrollToPosition(0);
+                final List<Movie> filteredModelList = filter(searchRecyclerFragment.movies, newText);
+                searchRecyclerFragment.adapter.replaceAll(filteredModelList);
+                searchRecyclerFragment.binding.rvMoviesPopular.scrollToPosition(0);
                 return true;
 
             }

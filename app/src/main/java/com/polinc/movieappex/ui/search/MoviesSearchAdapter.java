@@ -285,6 +285,7 @@ public void add(Movie model) {
         sortedList.endBatchedUpdates();
     }
 
+    public  List<Movie> getCurrentMovies(){return movies;};
 
 }
 

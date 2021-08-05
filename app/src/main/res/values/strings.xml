@@ -49,4 +49,8 @@
     <string name="menu_up">Upcoming</string>
     <string name="menu_info">Info</string>
     <string name="menu_slideshow">Slideshow</string>
+    <string name="menu_sav">Save</string>
+    <string name="menu_check">Check</string>
+    <string name="menu_go">Go</string>
+
 </resources>

@@ -3,16 +3,16 @@
         android:id="@+id/men_sea_bot_one"
         android:enabled="true"
         android:icon="@drawable/ic_menu_camera"
-        android:title="@string/menu_pop" />
+        android:title="@string/menu_sav" />
     <item
         android:id="@+id/men_sea_bot_two"
         android:enabled="true"
         android:icon="@drawable/ic_menu_gallery"
-        android:title="@string/menu_top" />
+        android:title="@string/menu_check" />
 
     <item
         android:id="@+id/men_sea_bot_three"
         android:enabled="true"
         android:icon="@drawable/ic_menu_slideshow"
-        android:title="@string/menu_up" />
+        android:title="@string/menu_go" />
 </menu>
