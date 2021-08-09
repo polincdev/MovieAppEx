@@ -23,7 +23,7 @@ public class StorageDialogFragment extends DialogFragment {
 
     // Use this instance of the interface to deliver action events
     NoticeDialogListener listener;
-
+    int whichClicked=0;
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -38,7 +38,8 @@ public class StorageDialogFragment extends DialogFragment {
                 .setSingleChoiceItems(charSequence, 0, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-
+                        System.out.println("onClick "+which);
+                              whichClicked=which;
                     }
                 })
 
@@ -46,7 +47,7 @@ public class StorageDialogFragment extends DialogFragment {
                 .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
-                        listener.onDialogPositiveClick(StorageDialogFragment.this,id);
+                        listener.onDialogPositiveClick(StorageDialogFragment.this,whichClicked);
                         dialog.dismiss();
 
                         }

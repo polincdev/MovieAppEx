@@ -55,6 +55,7 @@
     <string name="storage_type">Storage type</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
+    <string name="preference_file_key">com.polinc.movieappex</string>
 
 
 

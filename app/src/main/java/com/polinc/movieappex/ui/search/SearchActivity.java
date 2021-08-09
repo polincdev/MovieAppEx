@@ -29,15 +29,22 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.internal.LinkedTreeMap;
+import com.google.gson.reflect.TypeToken;
 import com.polinc.movieappex.R;
 
 import com.polinc.movieappex.databinding.ActivitySearchBinding;
+import com.polinc.movieappex.main.Consts;
 import com.polinc.movieappex.main.MyApplication;
 import com.polinc.movieappex.models.Movie;
 import com.polinc.movieappex.models.MoviesWraper;
 import com.polinc.movieappex.room.MoviesRetrieveController;
 
 
+import java.io.IOException;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -191,7 +198,29 @@ public class SearchActivity extends AppCompatActivity implements
 
                 runOnUiThread(new Runnable() {
                     public void run() {
-                        Toast.makeText(getApplicationContext(), "Movies saved "+searchRecyclerFragment.adapter.toCurrentMovies().size(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), "Movies saved to DB" , Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        });
+    }
+
+    void saveToSharedPrefs()
+    {
+        AsyncTask.execute(new Runnable() {
+            @Override
+            public void run() {
+
+                SharedPreferences sharedPref = SearchActivity.this.getSharedPreferences(
+                        Consts.PACK_PATH , Context.MODE_PRIVATE);
+
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.putString(Consts.MOVIES , writeAsJson(searchRecyclerFragment.adapter.toCurrentMovies()));
+                editor.apply();
+
+                runOnUiThread(new Runnable() {
+                    public void run() {
+                        Toast.makeText(getApplicationContext(), "Movies saved to SharedPrefs" , Toast.LENGTH_SHORT).show();
                     }
                 });
             }
@@ -236,11 +265,50 @@ public class SearchActivity extends AppCompatActivity implements
 
     void loadFromSharedPref(){
         SharedPreferences sharedPref = this.getSharedPreferences(
-                getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+                 Consts.PACK_PATH , Context.MODE_PRIVATE);
+
+        SharedPreferences.Editor editor = sharedPref.edit();
+        String serList = sharedPref.getString(Consts.MOVIES, null);
+        System.out.println("serList="+" "+serList);
+        List<Movie> movies=null;
+        if(serList!=null){
+            movies= readFromJson(  serList   );
+
+            for(Movie mov: movies)
+                System.out.println("movies="+" "+mov.getTitle());
+
+           ArrayList<Movie> finalMovies = (ArrayList<Movie>)movies;
+            runOnUiThread(new Runnable() {
+                public void run() {
+                    Toast.makeText(getApplicationContext(), "SharedPrefs loaded", Toast.LENGTH_SHORT).show();
+                    onMovieBatchGetSuccess(finalMovies);
+                }
+            });
+
+            return;
+        }
+
+         Toast.makeText(getApplicationContext(), "SharedPrefs load failed", Toast.LENGTH_SHORT).show();
+        return;
+
+
+
     }
 
-    
 
+    private Gson _gson = new Gson();;
+    private String writeAsJson(  	Object obj)  {
+
+        String res = _gson.toJson(obj);
+        return  res;
+    }
+    private   ArrayList<Movie> readFromJson(String obj   )  {
+//Deseria
+        ArrayList<Movie> movList = new Gson().fromJson(obj, new TypeToken<ArrayList<Movie>>() {
+        }.getType());
+
+        return  movList;
+    }
 
     void cleanDb()
     {
@@ -252,6 +320,28 @@ public class SearchActivity extends AppCompatActivity implements
                 runOnUiThread(new Runnable() {
                     public void run() {
                         Toast.makeText(getApplicationContext(), "DB cleaned", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        });
+    }
+
+    void cleanSharedPrefs()
+    {
+        AsyncTask.execute(new Runnable() {
+            @Override
+            public void run() {
+
+                SharedPreferences sharedPref = SearchActivity.this.getSharedPreferences(
+                        Consts.PACK_PATH , Context.MODE_PRIVATE);
+
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.putString(Consts.MOVIES , writeAsJson(searchRecyclerFragment.adapter.toCurrentMovies()));
+                editor.apply();
+
+                runOnUiThread(new Runnable() {
+                    public void run() {
+                        Toast.makeText(getApplicationContext(), "SharedPrefs cleaned", Toast.LENGTH_SHORT).show();
                     }
                 });
             }
@@ -373,11 +463,11 @@ private void updateList(List<Movie> newlList)
       else if(id==STORE.SharedPref.ordinal()) {
 
           if(currentMode==MODE.Save.ordinal())
-              saveToDB();
+              saveToSharedPrefs();
           else  if(currentMode==MODE.Load.ordinal())
-              loadFromDB();
+              loadFromSharedPref();
           else  if(currentMode==MODE.Clean.ordinal())
-              cleanDb();
+              cleanSharedPrefs();
         }
     }
 
