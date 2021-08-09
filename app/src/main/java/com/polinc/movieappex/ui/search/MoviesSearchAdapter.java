@@ -21,6 +21,7 @@ import com.polinc.movieappex.R;
 import com.polinc.movieappex.main.Api;
 import com.polinc.movieappex.models.Movie;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -285,7 +286,14 @@ public void add(Movie model) {
         sortedList.endBatchedUpdates();
     }
 
-    public  List<Movie> getCurrentMovies(){return movies;};
+    public  List<Movie> toCurrentMovies(){
+        List<Movie> currentList= new ArrayList<Movie>();
+        for(int a=0; a<sortedList.size();a++)
+           currentList.add(sortedList.get(a));
+
+        return currentList;
+
+     }
 
 }
 

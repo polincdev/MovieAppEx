@@ -52,5 +52,10 @@
     <string name="menu_sav">Save</string>
     <string name="menu_check">Check</string>
     <string name="menu_go">Go</string>
+    <string name="storage_type">Storage type</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+
+
 
 </resources>

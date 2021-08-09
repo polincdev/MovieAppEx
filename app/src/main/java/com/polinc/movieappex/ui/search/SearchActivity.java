@@ -1,6 +1,8 @@
 package com.polinc.movieappex.ui.search;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
@@ -17,6 +19,7 @@ import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.DialogFragment;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 
@@ -45,13 +48,20 @@ import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.observers.DisposableCompletableObserver;
 import io.reactivex.rxjava3.observers.DisposableSingleObserver;
 
-public class SearchActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, BottomNavigationView.OnNavigationItemSelectedListener {
+public class SearchActivity extends AppCompatActivity implements
+        NavigationView.OnNavigationItemSelectedListener,
+        BottomNavigationView.OnNavigationItemSelectedListener,
+        StorageDialogFragment.NoticeDialogListener {
 
-    DrawerLayout drawer;
-    ActivitySearchBinding binding;
-    SearchRecyclerFragment searchRecyclerFragment;
-    ProgressBar loadingProgressBar;
-    MoviesRetrieveController moviesRetrieveController;
+        DrawerLayout drawer;
+        ActivitySearchBinding binding;
+        SearchRecyclerFragment searchRecyclerFragment;
+        ProgressBar loadingProgressBar;
+        MoviesRetrieveController moviesRetrieveController;
+
+        enum STORE{SQLLite, SharedPref, AppPref};
+        enum MODE{Save, Load, Clean};
+        int currentMode=-1;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -154,21 +164,42 @@ public class SearchActivity extends AppCompatActivity implements NavigationView.
         //Bottom
         else if (id == R.id.men_sea_bot_one) {
 
-            AsyncTask.execute(new Runnable() {
-                @Override
-                public void run() {
-                    moviesRetrieveController.saveMovies(searchRecyclerFragment.adapter.getCurrentMovies());
-
-                    runOnUiThread(new Runnable() {
-                        public void run() {
-                            Toast.makeText(getApplicationContext(), "Movies saved", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                }
-            });
+            currentMode=MODE.Save.ordinal();
+            showNoticeDialog();
 
         }
         else if (id == R.id.men_sea_bot_two) {
+            currentMode=MODE.Load.ordinal();
+            showNoticeDialog();
+
+        }
+        else if (id == R.id.men_sea_bot_three) {
+            currentMode=MODE.Clean.ordinal();
+            showNoticeDialog();
+         }
+        DrawerLayout drawer = binding.drawerLayout;
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
+    }
+
+    void saveToDB()
+    {
+        AsyncTask.execute(new Runnable() {
+            @Override
+            public void run() {
+                moviesRetrieveController.saveMovies(searchRecyclerFragment.adapter.toCurrentMovies());
+
+                runOnUiThread(new Runnable() {
+                    public void run() {
+                        Toast.makeText(getApplicationContext(), "Movies saved "+searchRecyclerFragment.adapter.toCurrentMovies().size(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        });
+    }
+
+    void loadFromDB()
+    {
           /*  LiveData<List<Movie>> result =  moviesRetrieveController.getMoviesAll();
             result.observe(this, new Observer<List<Movie>>() {
                 @Override
@@ -176,59 +207,62 @@ public class SearchActivity extends AppCompatActivity implements NavigationView.
                     onMovieBatchGetSuccess(movies);
                 }
             });*/
-            ListenableFuture<List<Movie>> future =  moviesRetrieveController.getMoviesAll();
-            future.addListener(new Runnable() {
-                @Override
-                public void run() {
-                    List<Movie> movies=null;
-                    try {
-                        movies = future.get();
-                    } catch (ExecutionException e) {
-                        e.printStackTrace();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
+        ListenableFuture<List<Movie>> future =  moviesRetrieveController.getMoviesAll();
+        future.addListener(new Runnable() {
+                               @Override
+                               public void run() {
+                                   List<Movie> movies=null;
+                                   try {
+                                       movies = future.get();
+                                   } catch (ExecutionException e) {
+                                       e.printStackTrace();
+                                   } catch (InterruptedException e) {
+                                       e.printStackTrace();
+                                   }
+
+                                   List<Movie> finalMovies = movies;
+                                   runOnUiThread(new Runnable() {
+                                       public void run() {
+                                           onMovieBatchGetSuccess(finalMovies);
+                                       }
+                                   });
+                               }
+                           },
+                MoreExecutors.directExecutor()
+
+        );
+
+    }
+
+    void loadFromSharedPref(){
+        SharedPreferences sharedPref = this.getSharedPreferences(
+                getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+    }
+
+    
+
+
+    void cleanDb()
+    {
+        AsyncTask.execute(new Runnable() {
+            @Override
+            public void run() {
+                moviesRetrieveController.cleanDB( );
+
+                runOnUiThread(new Runnable() {
+                    public void run() {
+                        Toast.makeText(getApplicationContext(), "DB cleaned", Toast.LENGTH_SHORT).show();
                     }
-
-                    List<Movie> finalMovies = movies;
-                    runOnUiThread(new Runnable() {
-                        public void run() {
-                            onMovieBatchGetSuccess(finalMovies);
-                        }
-                    });
-                }
-            },
-               MoreExecutors.directExecutor()
-
-            );
-
-
-        }
-        else if (id == R.id.men_sea_bot_three) {
-
-
-            AsyncTask.execute(new Runnable() {
-                @Override
-                public void run() {
-                    moviesRetrieveController.cleanDB( );
-
-                    runOnUiThread(new Runnable() {
-                        public void run() {
-                            Toast.makeText(getApplicationContext(), "DB cleaned", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                }
-            });
-
-
-        }
-        DrawerLayout drawer = binding.drawerLayout;
-        drawer.closeDrawer(GravityCompat.START);
-        return true;
+                });
+            }
+        });
     }
 
     void onMovieBatchGetSuccess(List<Movie> movies)
        {
-             Toast.makeText(getApplicationContext(), "Movies retrieved "+movies.size(), Toast.LENGTH_SHORT).show();
+           Toast.makeText(getApplicationContext(), "Movies retrieved "+movies.size(), Toast.LENGTH_SHORT).show();
+           updateList(movies);
+
         }
     void onMovieBatchSaveSuccess()
     {
@@ -274,8 +308,7 @@ public class SearchActivity extends AppCompatActivity implements NavigationView.
             public boolean onQueryTextChange(String newText) {
 
                 final List<Movie> filteredModelList = filter(searchRecyclerFragment.movies, newText);
-                searchRecyclerFragment.adapter.replaceAll(filteredModelList);
-                searchRecyclerFragment.binding.rvMoviesPopular.scrollToPosition(0);
+                updateList(filteredModelList);
                 return true;
 
             }
@@ -284,7 +317,12 @@ public class SearchActivity extends AppCompatActivity implements NavigationView.
 
         return true;
     }
+private void updateList(List<Movie> newlList)
+{
 
+    searchRecyclerFragment.adapter.replaceAll(newlList);
+    searchRecyclerFragment.binding.rvMoviesPopular.scrollToPosition(0);
+}
     private static List<Movie> filter(List<Movie> models, String query) {
         final String lowerCaseQuery = query.toLowerCase();
 
@@ -309,4 +347,44 @@ public class SearchActivity extends AppCompatActivity implements NavigationView.
     }
         return(super.onOptionsItemSelected(item));
     }
+
+    public void showNoticeDialog() {
+        // Create an instance of the dialog fragment and show it
+        DialogFragment dialog = new StorageDialogFragment();
+        dialog.show(getSupportFragmentManager(), "StorageDialogFragment");
+    }
+    // The dialog fragment receives a reference to this Activity through the
+    // Fragment.onAttach() callback, which it uses to call the following methods
+    // defined by the NoticeDialogFragment.NoticeDialogListener interface
+    @Override
+    public void onDialogPositiveClick(DialogFragment dialog, int id) {
+      System.out.println("onDialogPositiveClick "+id);
+
+      if(id==STORE.SQLLite.ordinal()) {
+
+          if(currentMode==MODE.Save.ordinal())
+              saveToDB();
+          else  if(currentMode==MODE.Load.ordinal())
+               loadFromDB();
+           else  if(currentMode==MODE.Clean.ordinal())
+                cleanDb();
+
+        }
+      else if(id==STORE.SharedPref.ordinal()) {
+
+          if(currentMode==MODE.Save.ordinal())
+              saveToDB();
+          else  if(currentMode==MODE.Load.ordinal())
+              loadFromDB();
+          else  if(currentMode==MODE.Clean.ordinal())
+              cleanDb();
+        }
+    }
+
+    @Override
+    public void onDialogNegativeClick(DialogFragment dialog) {
+        // User touched the dialog's negative button
+
+    }
+
 }
