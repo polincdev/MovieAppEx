@@ -14,8 +14,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
-import com.polinc.movieappex.databinding.FragmentMovieDetailsBinding;
+import com.polinc.movieappex.databinding.GoogleFragmentBinding;
 import com.polinc.movieappex.databinding.GuestFragmentBinding;
 import com.polinc.movieappex.main.MyApplication;
 import com.polinc.movieappex.models.MoviesWraper;
@@ -24,12 +23,12 @@ import com.polinc.movieappex.net.MoviesGetController;
 import io.reactivex.rxjava3.core.Observable;
 
 
-public class GuestFragment extends Fragment {
+public class GoogleFragment extends Fragment {
 
 
       Button guestButton;
-    public static GuestFragment newInstance() {
-         return new GuestFragment();
+    public static GoogleFragment newInstance() {
+         return new GoogleFragment();
     }
 
     @Nullable
@@ -38,20 +37,26 @@ public class GuestFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         //return inflater.inflate(R.layout.main_fragment, container, false);
 
-        GuestFragmentBinding binding=GuestFragmentBinding.inflate(getLayoutInflater());
+        GoogleFragmentBinding binding= GoogleFragmentBinding.inflate(getLayoutInflater());
         View rootView =binding.getRoot();
 
-        guestButton = binding.btnGuestLogin;
-
+          guestButton = binding.btnGoogleLogin;
 
 
         guestButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                System.out.println("guestButton="+v );
+                System.out.println("googleButton="+v );
                 ((LoginActivity) getActivity()).loadingProgressBar.setVisibility(View.VISIBLE);
+                String loginText=((LoginActivity) getActivity()).usernameEditText.getText().toString() ;
+                String passText= ((LoginActivity) getActivity()).passwordEditText.getText().toString();
 
-                Task<AuthResult> authTask=((MyApplication)  ((LoginActivity) getActivity()).getApplication()).mAuth.signInAnonymously();
+                if(loginText.isEmpty() || passText.isEmpty() ){
+                    ((LoginActivity) getActivity()).onMovieFetchFailed(new Exception());
+                    return;
+                }
+
+                Task<AuthResult> authTask=((MyApplication)  ((LoginActivity) getActivity()).getApplication()).mAuth.signInWithEmailAndPassword(loginText, passText);
                 authTask.addOnSuccessListener(new OnSuccessListener<AuthResult>() {
                     @Override
                     public void onSuccess(AuthResult authResult) {
@@ -63,13 +68,14 @@ public class GuestFragment extends Fragment {
                     }
                 });
 
+
+
                 authTask.addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         ((LoginActivity) getActivity()).onMovieFetchFailed(e);
                     }
                 });
-
             }
         });
         return rootView;

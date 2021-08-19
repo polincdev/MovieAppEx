@@ -30,7 +30,7 @@ public class StorageDialogFragment extends DialogFragment {
 
 
 
-        final CharSequence[] charSequence = new CharSequence[] {"SQLite","SharedPref","AppPref","Files", "DataStore","All"};
+        final CharSequence[] charSequence = new CharSequence[] {"SQLite","SharedPref","AppPref","Files", "DataStore","FB RT","FB FS","All"};
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle("Storage target")

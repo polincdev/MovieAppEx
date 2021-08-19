@@ -1,5 +1,6 @@
 package com.polinc.movieappex.data;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.polinc.movieappex.data.model.LoggedInUser;
 
 import java.io.IOException;
@@ -8,6 +9,9 @@ import java.io.IOException;
  * Class that handles authentication w/ login credentials and retrieves user information.
  */
 public class LoginDataSource {
+
+    private FirebaseAuth mAuth;
+
 
     public Result<LoggedInUser> login(String username, String password) {
 

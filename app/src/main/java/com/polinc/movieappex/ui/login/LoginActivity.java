@@ -43,6 +43,9 @@ import com.polinc.movieappex.ui.movies.MoviesActivity;
 
 import java.util.ArrayList;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class LoginActivity extends AppCompatActivity {
 
     LoginViewModel loginViewModel;
@@ -52,15 +55,14 @@ public class LoginActivity extends AppCompatActivity {
     EditText passwordEditText;
     TMDBFragment tmdbFragment;
     GuestFragment guestFragment;
+    GoogleFragment googleFragment;
     Fragment currentFragment;
     Fragment prevFragment;
     TextView infoText;
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        ((MyApplication) getApplicationContext()).appComponent.inject(this);
 
         super.onCreate(savedInstanceState);
-
 
         //Intro
         Intent i =new Intent(getApplicationContext(), MyCustomOnboarder.class);
@@ -76,6 +78,7 @@ public class LoginActivity extends AppCompatActivity {
 
         tmdbFragment=TMDBFragment.newInstance();
         guestFragment=GuestFragment.newInstance();
+        googleFragment=GoogleFragment.newInstance();
 
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
@@ -129,11 +132,9 @@ public class LoginActivity extends AppCompatActivity {
         final Spinner spinner = (Spinner) findViewById(R.id.loginTypeSpinner);
          // Spinner Drop down elemesnts
         ArrayList<String> categories = new ArrayList<String>();
-        categories.add("Firebase");
         categories.add("Guest");
         categories.add("Google");
-        categories.add("Tweeter");
-        categories.add("Email");
+        categories.add("TMDB");
 
 
         // Creating adapter for spinner
@@ -153,7 +154,7 @@ public class LoginActivity extends AppCompatActivity {
                 // Showing selected spinner item
                 Toast.makeText(parent.getContext(), "Selected: " + item, Toast.LENGTH_LONG).show();
 
-                if(item.equals("Firebase")) {
+                if(item.equals("TMDB")) {
 
 
                     FragmentManager fragmentManager = getSupportFragmentManager();
@@ -175,7 +176,16 @@ public class LoginActivity extends AppCompatActivity {
                     fragmentTransaction.addToBackStack("h");
                     fragmentTransaction.commit();
                 }
+                else if(item.equals("Google")) {
 
+                    FragmentManager fragmentManager = getSupportFragmentManager();
+                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                    fragmentTransaction.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
+                    // fragmentManager.addOnBackStackChangedListener(this);
+                    fragmentTransaction.replace(R.id.frag_container, googleFragment, "h");
+                    fragmentTransaction.addToBackStack("h");
+                    fragmentTransaction.commit();
+                }
 
 
            }

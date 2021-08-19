@@ -15,19 +15,22 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
+import dagger.hilt.InstallIn;
+import dagger.hilt.android.qualifiers.ApplicationContext;
+import dagger.hilt.components.SingletonComponent;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava3.RxJava3CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-
 @Module
+@InstallIn(SingletonComponent.class)
 public class DBModule {
 
     @Provides
     @Singleton
-    MoviesRetrieveController provideMoviesRetrieveControllerr(Context context) {
+    MoviesRetrieveController provideMoviesRetrieveControllerr(@ApplicationContext Context context) {
         return new MoviesRetrieveController(context);
     }
 

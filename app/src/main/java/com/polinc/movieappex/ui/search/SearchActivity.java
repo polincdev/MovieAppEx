@@ -1,5 +1,7 @@
 package com.polinc.movieappex.ui.search;
 
+import static android.content.ContentValues.TAG;
+
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -11,6 +13,7 @@ import android.os.Build;
 import android.os.Bundle;
 
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 
@@ -18,6 +21,7 @@ import android.view.MenuItem;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
@@ -38,17 +42,29 @@ import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
 import androidx.work.WorkRequest;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.common.reflect.TypeToken;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
-import com.google.gson.internal.LinkedTreeMap;
-import com.google.gson.reflect.TypeToken;
+
 import com.polinc.movieappex.R;
 
 import com.polinc.movieappex.databinding.ActivitySearchBinding;
@@ -69,9 +85,12 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+import dagger.hilt.android.AndroidEntryPoint;
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Observable;
@@ -79,6 +98,7 @@ import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.observers.DisposableCompletableObserver;
 import io.reactivex.rxjava3.observers.DisposableSingleObserver;
 
+@AndroidEntryPoint
 public class SearchActivity extends AppCompatActivity implements
         NavigationView.OnNavigationItemSelectedListener,
         BottomNavigationView.OnNavigationItemSelectedListener,
@@ -90,13 +110,17 @@ public class SearchActivity extends AppCompatActivity implements
         ProgressBar loadingProgressBar;
         MoviesRetrieveController moviesRetrieveController;
 
-        enum STORE{SQLLite, SharedPref, AppPref, Files,DataStore, All};
+        enum STORE{SQLLite, SharedPref, AppPref, Files,DataStore,FBRT,FBFS, All};
         enum MODE{Save, Load, Clean};
         int currentMode=-1;
         private Gson _gson;
         WorkRequest notWorkRequest ;
         String CHANNEL_ID=Consts.PACK_PATH+"."+System.currentTimeMillis();
         RxDataStore<Preferences> dataStore;
+        FirebaseDatabase database;
+        DatabaseReference myRef;
+        FirebaseFirestore db;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -125,7 +149,11 @@ public class SearchActivity extends AppCompatActivity implements
              dataStore =  new RxPreferenceDataStoreBuilder(this, /*name=*/ "settings").build();
            //Init worker
               notWorkRequest =   new OneTimeWorkRequest.Builder(NotificationWorker.class)  .build();
-
+            //Init Firebase RT
+            database = FirebaseDatabase.getInstance();
+            myRef = database.getReference(Consts.MOVIES);
+            //Init Firebase FS
+              db = FirebaseFirestore.getInstance();
         }
 
         loadingProgressBar = binding.progressBar;
@@ -303,6 +331,61 @@ public class SearchActivity extends AppCompatActivity implements
             }
         });
     }
+
+    void saveToFirebaseRT()
+    {
+        AsyncTask.execute(new Runnable() {
+            @Override
+            public void run() {
+                myRef.child( Consts.MOVIES ).setValue( writeAsJson(searchRecyclerFragment.adapter.toCurrentMovies()));
+             
+                runOnUiThread(new Runnable() {
+                    public void run() {
+                        Toast.makeText(getApplicationContext(), "Movies saved to Firebase RT" , Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        });
+    }
+
+    void saveToFirebaseFS()
+    {
+        AsyncTask.execute(new Runnable() {
+            @Override
+            public void run() {
+
+               Map<String, Object> movMap = new HashMap<>();
+                movMap.put(Consts.MOVIES, writeAsJson(searchRecyclerFragment.adapter.toCurrentMovies()));
+                 // Add a new document with a generated ID
+                db.collection(Consts.MOVIES)
+                        .document(Consts.MOVIES)
+                        .set(movMap)
+                        .addOnSuccessListener(new OnSuccessListener () {
+
+                            @Override
+                            public void onSuccess(Object o ) {
+
+                                runOnUiThread(new Runnable() {
+                                    public void run() {
+                                        Toast.makeText(getApplicationContext(), "Movies saved to Firebase FS" , Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                e.printStackTrace();
+                                Toast.makeText(getApplicationContext(), "Failed to save to Firebase FS" , Toast.LENGTH_SHORT).show();
+
+                            }
+                        });
+
+
+            }
+        });
+    }
+
     void saveToFiles()
     {
         AsyncTask.execute(new Runnable() {
@@ -485,6 +568,95 @@ public class SearchActivity extends AppCompatActivity implements
 
     }
 
+    void loadFromFirebaseRT(){
+
+        // Read from the database
+        myRef.child(Consts.MOVIES).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DataSnapshot> task) {
+                    if (!task.isSuccessful()) {
+                        Log.e("firebase", "Error getting data", task.getException());
+                    }
+                    else {
+                        Log.d("firebase", String.valueOf(task.getResult().getValue()));
+
+
+                        String serList =  String.valueOf(task.getResult().getValue()) ;
+
+                        System.out.println("serList="+" "+serList);
+                        List<Movie> movies=null;
+                        if(serList!=null){
+                            movies= readFromJson(  serList   );
+
+                            for(Movie mov: movies)
+                                System.out.println("movies="+" "+mov.getTitle());
+
+                            ArrayList<Movie> finalMovies = (ArrayList<Movie>)movies;
+                            runOnUiThread(new Runnable() {
+                                public void run() {
+                                    Toast.makeText(getApplicationContext(), "Files loaded", Toast.LENGTH_SHORT).show();
+                                    onMovieBatchGetSuccess(finalMovies);
+                                }
+                            });
+
+                            return;
+                        }
+                        Toast.makeText(getApplicationContext(), "Files load failed", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                }
+            });
+
+    }
+
+
+    void loadFromFirebaseFS(){
+
+        // Read from the database
+        db.collection(Consts.MOVIES)
+                .get() .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (!task.isSuccessful()) {
+                    Log.e("firebase", "Error getting data", task.getException());
+                }
+                else {
+
+                    if( task.getResult().size()>0) {
+                        //
+                        for (DocumentSnapshot document : task.getResult().getDocuments()) {
+                            Log.d(TAG, document.getId() + " => " + document.getData().get(Consts.MOVIES));
+
+
+                                String serList = (String)document.getData().get(Consts.MOVIES);
+
+                                System.out.println("serList=" + " " + serList);
+                                List<Movie> movies = null;
+                                if (serList != null) {
+                                    movies = readFromJson(serList);
+
+                                    for (Movie mov : movies)
+                                        System.out.println("movies=" + " " + mov.getTitle());
+
+                                    ArrayList<Movie> finalMovies = (ArrayList<Movie>) movies;
+                                    runOnUiThread(new Runnable() {
+                                        public void run() {
+                                            Toast.makeText(getApplicationContext(), "Files loaded", Toast.LENGTH_SHORT).show();
+                                            onMovieBatchGetSuccess(finalMovies);
+                                        }
+                                    });
+
+                                    return;
+                           }
+                        Toast.makeText(getApplicationContext(), "Files load failed", Toast.LENGTH_SHORT).show();
+                        return;
+                       }
+                    }
+                }
+            }
+        });
+
+    }
 private  String readFile(File file) {
 
     //String serList2 =new FileClient().readFile(file);
@@ -558,6 +730,61 @@ private  String readFile(File file) {
             }
         });
     }
+
+    void cleanFirebaseRT()
+    {
+        AsyncTask.execute(new Runnable() {
+            @Override
+            public void run() {
+
+                myRef.child( Consts.MOVIES ).setValue( "");
+
+
+                runOnUiThread(new Runnable() {
+                    public void run() {
+                        Toast.makeText(getApplicationContext(), "Firebase RT cleaned", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        });
+    }
+
+    void cleanFirebaseFS()
+    {
+        AsyncTask.execute(new Runnable() {
+            @Override
+            public void run() {
+
+                Map<String, Object> movMap = new HashMap<>();
+                movMap.put(Consts.MOVIES, "{}");
+
+                // Add a new document with a generated ID
+                db.collection(Consts.MOVIES)
+                        .document(Consts.MOVIES)
+                        .set(movMap)
+                        .addOnSuccessListener(new OnSuccessListener () {
+                            @Override
+                            public void onSuccess(Object documentReference) {
+
+                                runOnUiThread(new Runnable() {
+                                    public void run() {
+                                        Toast.makeText(getApplicationContext(), "Firebase RS cleaned" , Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.w(TAG, "Error adding document", e);
+                            }
+                        });
+
+
+            }
+        });
+    }
+
     void cleanAppPrefs()
     {
         AsyncTask.execute(new Runnable() {
@@ -784,6 +1011,30 @@ private void updateList(List<Movie> newlList)
           sendNotification("Files operation", "Opertion on Filess");
 
       }
+      else if(id==STORE.DataStore.FBRT.ordinal()) {
+
+          if(currentMode==MODE.Save.ordinal())
+              saveToFirebaseRT();
+          else  if(currentMode==MODE.Load.ordinal())
+              loadFromFirebaseRT();
+          else  if(currentMode==MODE.Clean.ordinal())
+              cleanFirebaseRT();
+
+          sendNotification("Firebase RT operation", "Opertion on Firebase RT");
+
+      }
+      else if(id==STORE.DataStore.FBFS.ordinal()) {
+
+          if(currentMode==MODE.Save.ordinal())
+              saveToFirebaseFS();
+          else  if(currentMode==MODE.Load.ordinal())
+              loadFromFirebaseFS();
+          else  if(currentMode==MODE.Clean.ordinal())
+              cleanFirebaseFS();
+
+          sendNotification("Firebase RT operation", "Opertion on Firebase RT");
+
+      }
       else if(id==STORE.All.ordinal()) {
 
           if(currentMode==MODE.Save.ordinal()) {
@@ -792,6 +1043,8 @@ private void updateList(List<Movie> newlList)
               saveToSharedPrefs();
               saveToDB();
               saveToDataStore();
+              saveToFirebaseRT();
+              saveToFirebaseFS();
           }
           else  if(currentMode==MODE.Load.ordinal()) {
               Toast.makeText(getApplicationContext(), "Cannot lod from all the sources", Toast.LENGTH_SHORT).show();
@@ -803,6 +1056,8 @@ private void updateList(List<Movie> newlList)
               cleanFiles();
               cleanDb();
               cleanDataStore();
+              cleanFirebaseRT();
+              cleanFirebaseFS();
           }
 
           sendNotification("General operation", "Opertion on all targets");

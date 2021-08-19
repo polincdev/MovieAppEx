@@ -6,10 +6,13 @@ import com.polinc.movieappex.ui.detail.DetailActivity;
 import dagger.Binds;
 import dagger.Module;
 import dagger.android.AndroidInjector;
+import dagger.hilt.InstallIn;
+import dagger.hilt.components.SingletonComponent;
 import dagger.multibindings.ClassKey;
 import dagger.multibindings.IntoMap;
 
-@Module( )
+@Module
+@InstallIn(SingletonComponent.class)
 public abstract class DetailModule {
 
 }

@@ -31,9 +31,10 @@ import android.view.MenuItem;
 
 import org.jetbrains.annotations.NotNull;
 
+import dagger.hilt.android.AndroidEntryPoint;
 
 
-
+@AndroidEntryPoint
 public class DetailActivity extends AppCompatActivity {
 
     private ActivityMovieDetailBinding binding ;

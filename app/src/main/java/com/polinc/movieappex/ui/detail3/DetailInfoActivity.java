@@ -24,7 +24,9 @@ import com.polinc.movieappex.main.Api;
 import com.polinc.movieappex.main.Consts;
 import com.polinc.movieappex.models.Movie;
 
+import dagger.hilt.android.AndroidEntryPoint;
 
+@AndroidEntryPoint
 public class DetailInfoActivity extends AppCompatActivity {
 
     private ActivityMovieInfoBinding binding ;

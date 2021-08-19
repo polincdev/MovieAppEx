@@ -12,6 +12,7 @@ import com.polinc.movieappex.data.model.LoggedInUser;
 import com.polinc.movieappex.R;
 
 public class LoginViewModel extends ViewModel {
+ 
 
     private MutableLiveData<LoginFormState> loginFormState = new MutableLiveData<>();
     private MutableLiveData<LoginResult> loginResult = new MutableLiveData<>();
