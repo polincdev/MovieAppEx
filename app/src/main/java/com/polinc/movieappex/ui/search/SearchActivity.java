@@ -61,6 +61,8 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
@@ -154,6 +156,7 @@ public class SearchActivity extends AppCompatActivity implements
             myRef = database.getReference(Consts.MOVIES);
             //Init Firebase FS
               db = FirebaseFirestore.getInstance();
+
         }
 
         loadingProgressBar = binding.progressBar;

@@ -77,4 +77,6 @@ public class StorageDialogFragment extends DialogFragment {
                     + " must implement NoticeDialogListener");
         }
     }
+
+
 }

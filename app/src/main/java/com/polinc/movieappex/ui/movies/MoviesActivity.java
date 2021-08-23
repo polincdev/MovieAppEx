@@ -24,6 +24,7 @@ import com.polinc.movieappex.databinding.ActivityMoviesBinding;
 import com.polinc.movieappex.ui.intro.IntroSlider;
 import com.polinc.movieappex.ui.intro.MyCustomOnboarder;
 import com.polinc.movieappex.ui.login.LoginActivity;
+import com.polinc.movieappex.ui.prods.ProdActivity;
 import com.polinc.movieappex.ui.search.SearchActivity;
 
 
@@ -169,7 +170,8 @@ public class MoviesActivity extends AppCompatActivity   {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) { switch(item.getItemId()) {
         case R.id.add:
-
+            startActivity(new Intent(MoviesActivity.this, ProdActivity.class));
+            overridePendingTransition(R.anim.activity_in, R.anim.activity_out);
             return(true);
         case R.id.search:
             if(currentFragmentLabel.equals(getResources().getString(R.string.menu_pop)))
