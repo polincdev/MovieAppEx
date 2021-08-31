@@ -2,6 +2,7 @@ package com.polinc.movieappex.ui.login;
 
 import android.app.Activity;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -30,9 +31,14 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
+import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
 import com.polinc.movieappex.R;
 import com.polinc.movieappex.data.InitDataSource;
+import com.polinc.movieappex.main.MainActivity;
 import com.polinc.movieappex.main.MyApplication;
 import com.polinc.movieappex.models.Movie;
 import com.polinc.movieappex.models.MoviesWraper;
@@ -59,6 +65,9 @@ public class LoginActivity extends AppCompatActivity {
     Fragment currentFragment;
     Fragment prevFragment;
     TextView infoText;
+
+
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
 
@@ -73,18 +82,38 @@ public class LoginActivity extends AppCompatActivity {
         //Disable login appbar
          getSupportActionBar().hide();
 
-        loginViewModel = new ViewModelProvider(this, new LoginViewModelFactory())
+        loginViewModel = new ViewModelProvider(this )
                 .get(LoginViewModel.class);
 
         tmdbFragment=TMDBFragment.newInstance();
         guestFragment=GuestFragment.newInstance();
         googleFragment=GoogleFragment.newInstance();
 
+
+
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                    // .setCustomAnimations(R.anim.slide_in_from_right, R.anim.slide_out_to_left,R.anim.slide_in_from_left, R.anim.slide_out_to_right)
                     .replace(R.id.frag_container, tmdbFragment)
                     .commitNow();
+
+
+//
+            ((MyApplication) LoginActivity.this.getApplication()).mFirebaseRemoteConfig.fetchAndActivate()
+                    .addOnCompleteListener(this, new OnCompleteListener<Boolean>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Boolean> task) {
+                            if (task.isSuccessful()) {
+                                boolean updated = task.getResult();
+                               String value= ((MyApplication) LoginActivity.this.getApplication()).mFirebaseRemoteConfig.getString("loginButton");
+                               System.out.println("Fetch and activate succeeded "+value );
+
+                            } else {
+                                System.out.println("Fetch failed");
+                            }
+
+                        }
+                    });
         }
         currentFragment=tmdbFragment;
         prevFragment=guestFragment;

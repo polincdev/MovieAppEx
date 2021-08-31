@@ -1,6 +1,11 @@
-package com.polinc.movieappex.net;
+package com.polinc.movieappex.di;
 
  
+
+import com.polinc.movieappex.net.BuildConfig;
+import com.polinc.movieappex.net.MovieAPI;
+import com.polinc.movieappex.net.MoviesGetController;
+import com.polinc.movieappex.net.RequestInterceptor;
 
 import java.util.concurrent.TimeUnit;
 

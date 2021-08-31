@@ -32,13 +32,12 @@ import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava3.RxJava3CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-@Singleton
-public class MoviesRetrieveController {
 
-	AppDatabase db;
+public class MoviesRetrieveController {
 	@Inject
+	AppDatabase db;
+
 	 public MoviesRetrieveController(Context context ) {
-		  db = Room.databaseBuilder(context,AppDatabase.class, "movieappex").build();
 
 	 }
 

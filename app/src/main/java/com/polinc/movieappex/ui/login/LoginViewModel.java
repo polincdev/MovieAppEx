@@ -6,19 +6,24 @@ import androidx.lifecycle.ViewModel;
 
 import android.util.Patterns;
 
-import com.polinc.movieappex.data.LoginRepository;
+import com.polinc.movieappex.data.LoginRepositoryImpl;
 import com.polinc.movieappex.data.Result;
 import com.polinc.movieappex.data.model.LoggedInUser;
 import com.polinc.movieappex.R;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.lifecycle.HiltViewModel;
+
+@HiltViewModel
 public class LoginViewModel extends ViewModel {
  
 
     private MutableLiveData<LoginFormState> loginFormState = new MutableLiveData<>();
     private MutableLiveData<LoginResult> loginResult = new MutableLiveData<>();
-    private LoginRepository loginRepository;
-
-    LoginViewModel(LoginRepository loginRepository) {
+    private LoginRepositoryImpl loginRepository;
+    @Inject
+    LoginViewModel(LoginRepositoryImpl loginRepository) {
         this.loginRepository = loginRepository;
     }
 

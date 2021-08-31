@@ -5,6 +5,8 @@ import com.polinc.movieappex.data.model.LoggedInUser;
 
 import java.io.IOException;
 
+import javax.inject.Inject;
+
 /**
  * Class that handles authentication w/ login credentials and retrieves user information.
  */
@@ -12,6 +14,8 @@ public class LoginDataSource {
 
     private FirebaseAuth mAuth;
 
+    @Inject
+public LoginDataSource(){};
 
     public Result<LoggedInUser> login(String username, String password) {
 

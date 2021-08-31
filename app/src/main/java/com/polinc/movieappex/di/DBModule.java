@@ -1,13 +1,17 @@
-package com.polinc.movieappex.room;
+package com.polinc.movieappex.di;
 
  
 
 import android.content.Context;
 
+import androidx.room.Room;
+
 import com.polinc.movieappex.net.BuildConfig;
 import com.polinc.movieappex.net.MovieAPI;
 import com.polinc.movieappex.net.MoviesGetController;
 import com.polinc.movieappex.net.RequestInterceptor;
+import com.polinc.movieappex.room.AppDatabase;
+import com.polinc.movieappex.room.MoviesRetrieveController;
 
 import java.util.concurrent.TimeUnit;
 
@@ -28,14 +32,17 @@ import retrofit2.converter.gson.GsonConverterFactory;
 @InstallIn(SingletonComponent.class)
 public class DBModule {
 
-    @Provides
+
     @Singleton
-    MoviesRetrieveController provideMoviesRetrieveControllerr(@ApplicationContext Context context) {
-        return new MoviesRetrieveController(context);
+    @Provides
+    public AppDatabase provideRoomDB(@ApplicationContext Context context )  {
+        return Room.databaseBuilder(context, AppDatabase.class, "movieappex").build();
     }
 
-
-
- 
+    @Singleton
+    @Provides
+    public MoviesRetrieveController provideMoviesRetrieveController(@ApplicationContext Context context )  {
+        return  new MoviesRetrieveController(context);
+    }
 
 }

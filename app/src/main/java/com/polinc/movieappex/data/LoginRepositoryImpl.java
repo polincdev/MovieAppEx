@@ -2,13 +2,16 @@ package com.polinc.movieappex.data;
 
 import com.polinc.movieappex.data.model.LoggedInUser;
 
+import javax.inject.Inject;
+
 /**
  * Class that requests authentication and user information from the remote data source and
  * maintains an in-memory cache of login status and user credentials information.
  */
-public class LoginRepository {
 
-    private static volatile LoginRepository instance;
+public class LoginRepositoryImpl {
+
+    private static volatile LoginRepositoryImpl instance;
 
     private LoginDataSource dataSource;
 
@@ -17,13 +20,14 @@ public class LoginRepository {
     private LoggedInUser user = null;
 
     // private constructor : singleton access
-    private LoginRepository(LoginDataSource dataSource) {
+    @Inject
+    public LoginRepositoryImpl(LoginDataSource dataSource) {
         this.dataSource = dataSource;
     }
 
-    public static LoginRepository getInstance(LoginDataSource dataSource) {
+    public static LoginRepositoryImpl getInstance(LoginDataSource dataSource) {
         if (instance == null) {
-            instance = new LoginRepository(dataSource);
+            instance = new LoginRepositoryImpl(dataSource);
         }
         return instance;
     }
