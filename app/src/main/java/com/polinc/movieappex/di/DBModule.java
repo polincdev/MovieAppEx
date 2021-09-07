@@ -41,8 +41,8 @@ public class DBModule {
 
     @Singleton
     @Provides
-    public MoviesRetrieveController provideMoviesRetrieveController(@ApplicationContext Context context )  {
-        return  new MoviesRetrieveController(context);
+    public MoviesRetrieveController provideMoviesRetrieveController(@ApplicationContext Context context,AppDatabase db )  {
+        return  new MoviesRetrieveController(  db);
     }
 
 }

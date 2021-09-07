@@ -2,18 +2,25 @@ package com.polinc.movieappex.di;
 
 
 
-import com.polinc.movieappex.ui.login.LoginActivity;
+import com.polinc.movieappex.data.LoginDataSourceImpl;
+import com.polinc.movieappex.data.LoginRepositoryImpl;
+import com.polinc.movieappex.data.LoginRepositoryInterface;
 
-import dagger.Binds;
 import dagger.Module;
-import dagger.android.AndroidInjector;
+import dagger.Provides;
 import dagger.hilt.InstallIn;
 import dagger.hilt.components.SingletonComponent;
-import dagger.multibindings.ClassKey;
-import dagger.multibindings.IntoMap;
 
 @Module
 @InstallIn(SingletonComponent.class)
-public abstract class LoginModule {
+public  class LoginModule {
 
+    @Provides
+    LoginDataSourceImpl provideLoginDataSource(  ) {
+        return new LoginDataSourceImpl();
+    }
+    @Provides
+    LoginRepositoryInterface provideLoginRepository(LoginDataSourceImpl loginDataSource  ) {
+         return new LoginRepositoryImpl(loginDataSource);
+    }
 }

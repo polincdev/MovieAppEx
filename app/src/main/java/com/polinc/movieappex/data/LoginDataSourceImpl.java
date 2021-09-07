@@ -10,12 +10,12 @@ import javax.inject.Inject;
 /**
  * Class that handles authentication w/ login credentials and retrieves user information.
  */
-public class LoginDataSource {
+public class LoginDataSourceImpl implements LoginDataSourceInterface {
 
     private FirebaseAuth mAuth;
 
     @Inject
-public LoginDataSource(){};
+public LoginDataSourceImpl(){};
 
     public Result<LoggedInUser> login(String username, String password) {
 

@@ -1,7 +1,5 @@
 package com.polinc.movieappex.main;
 
-import static org.junit.Assert.*;
-import static org.junit.Assert.assertEquals;
 
 import android.content.Context;
 

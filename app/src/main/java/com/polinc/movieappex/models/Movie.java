@@ -6,12 +6,27 @@ import android.os.Parcelable;
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 import com.google.gson.annotations.SerializedName;
 
 @Entity
 public class Movie implements Parcelable {
+
+
+    //Ignore contruktor for the sake of Room which meed 0arg
+   @Ignore
+    public Movie(String id,String overview,String releaseDate,String posterPath,String backdropPath,String title,double voteAverage){
+        this. id=id;
+        this.overview=overview;
+        this.releaseDate=releaseDate;
+        this. posterPath=posterPath;
+        this.backdropPath=backdropPath;
+        this.title=title;
+        this.voteAverage=voteAverage;
+ }
+
     @NonNull
     @PrimaryKey
     private String id;

@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.annotation.NonNull;
 
-import com.polinc.movieappex.data.LoginDataSource;
+import com.polinc.movieappex.data.LoginDataSourceImpl;
 import com.polinc.movieappex.data.LoginRepositoryImpl;
 
 import javax.inject.Inject;
@@ -23,7 +23,7 @@ public class LoginViewModelFactory implements ViewModelProvider.Factory {
     @SuppressWarnings("unchecked")
     public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
         if (modelClass.isAssignableFrom(LoginViewModel.class)) {
-            return (T) new LoginViewModel(LoginRepositoryImpl.getInstance(new LoginDataSource()));
+            return (T) new LoginViewModel(LoginRepositoryImpl.getInstance(new LoginDataSourceImpl()));
         } else {
             throw new IllegalArgumentException("Unknown ViewModel class");
         }

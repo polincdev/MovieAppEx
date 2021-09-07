@@ -4,6 +4,7 @@ import android.app.Activity;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentFactory;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
@@ -49,6 +50,8 @@ import com.polinc.movieappex.ui.movies.MoviesActivity;
 
 import java.util.ArrayList;
 
+import javax.inject.Inject;
+
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
@@ -67,6 +70,8 @@ public class LoginActivity extends AppCompatActivity {
     TextView infoText;
 
 
+    @Inject
+    CustomLoginFragmentFactory fragmentFactory;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -85,16 +90,19 @@ public class LoginActivity extends AppCompatActivity {
         loginViewModel = new ViewModelProvider(this )
                 .get(LoginViewModel.class);
 
+        //Disabled for the sake of a facotry
         tmdbFragment=TMDBFragment.newInstance();
         guestFragment=GuestFragment.newInstance();
         googleFragment=GoogleFragment.newInstance();
 
-
+        //Factory for fragments
+        getSupportFragmentManager().setFragmentFactory(fragmentFactory);
 
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                    // .setCustomAnimations(R.anim.slide_in_from_right, R.anim.slide_out_to_left,R.anim.slide_in_from_left, R.anim.slide_out_to_right)
-                    .replace(R.id.frag_container, tmdbFragment)
+                   // .replace(R.id.frag_container, tmdbFragment)
+                    .replace(R.id.frag_container, TMDBFragment.class, null)
                     .commitNow();
 
 
@@ -190,7 +198,8 @@ public class LoginActivity extends AppCompatActivity {
                     FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                     fragmentTransaction.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
                    // fragmentManager.addOnBackStackChangedListener(this);
-                    fragmentTransaction.replace(R.id.frag_container, tmdbFragment, "h");
+                    //fragmentTransaction.replace(R.id.frag_container, tmdbFragment, "h");
+                    fragmentTransaction.replace(R.id.frag_container, TMDBFragment.class, null);
                     fragmentTransaction.addToBackStack("h");
                     fragmentTransaction.commit();
                 }
@@ -201,7 +210,7 @@ public class LoginActivity extends AppCompatActivity {
                     FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                     fragmentTransaction.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
                     // fragmentManager.addOnBackStackChangedListener(this);
-                    fragmentTransaction.replace(R.id.frag_container, guestFragment, "h");
+                    fragmentTransaction.replace(R.id.frag_container, GuestFragment.class, null);
                     fragmentTransaction.addToBackStack("h");
                     fragmentTransaction.commit();
                 }
@@ -211,7 +220,7 @@ public class LoginActivity extends AppCompatActivity {
                     FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                     fragmentTransaction.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
                     // fragmentManager.addOnBackStackChangedListener(this);
-                    fragmentTransaction.replace(R.id.frag_container, googleFragment, "h");
+                    fragmentTransaction.replace(R.id.frag_container, GoogleFragment.class,null);
                     fragmentTransaction.addToBackStack("h");
                     fragmentTransaction.commit();
                 }

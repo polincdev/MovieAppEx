@@ -20,6 +20,8 @@ import com.polinc.movieappex.main.MyApplication;
 import com.polinc.movieappex.models.MoviesWraper;
 import com.polinc.movieappex.net.MoviesGetController;
 
+import javax.inject.Inject;
+
 import io.reactivex.rxjava3.core.Observable;
 
 
@@ -27,6 +29,8 @@ public class GoogleFragment extends Fragment {
 
 
       Button guestButton;
+
+
     public static GoogleFragment newInstance() {
          return new GoogleFragment();
     }

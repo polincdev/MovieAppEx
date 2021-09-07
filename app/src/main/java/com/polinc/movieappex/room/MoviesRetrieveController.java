@@ -34,11 +34,11 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 
 public class MoviesRetrieveController {
-	@Inject
+
 	AppDatabase db;
 
-	 public MoviesRetrieveController(Context context ) {
-
+	 public MoviesRetrieveController( AppDatabase db ) {
+       this.db=db;
 	 }
 
 
@@ -57,6 +57,13 @@ public class MoviesRetrieveController {
 	public ListenableFuture<List<Movie>> getMoviesAll( ) {
 
 		ListenableFuture<List<Movie>> call = db.movieDao().loadAll();
+
+		return call;
+
+	}
+	public  List<Movie> getAllMovies( ) {
+
+		 List<Movie> call = db.movieDao().loadAllMovies();
 
 		return call;
 

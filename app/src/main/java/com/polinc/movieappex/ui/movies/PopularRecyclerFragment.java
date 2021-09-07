@@ -31,21 +31,24 @@ import com.polinc.movieappex.models.MoviesWraper;
 import com.polinc.movieappex.net.MoviesGetController;
 import com.polinc.movieappex.ui.detail.DetailActivity;
 import com.polinc.movieappex.ui.detail2.MovieDetailsActivity;
+
 import java.util.ArrayList;
+
 import io.reactivex.rxjava3.core.Observable;
 import jp.wasabeef.recyclerview.animators.SlideInUpAnimator;
 
 
 public class PopularRecyclerFragment extends Fragment {
 
-    MoviesGetController moviesGetController ;
+    MoviesGetController moviesGetController;
 
     public ArrayList<Movie> movies;
 
     RecyclerView recyclerView;
     public MoviesPopularAdapter adapter;
-    int currentPage=1;
+    int currentPage = 1;
     public PopularRecyclerFragmentBinding binding;
+
     public static PopularRecyclerFragment newInstance() {
         return new PopularRecyclerFragment();
     }
@@ -56,12 +59,11 @@ public class PopularRecyclerFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         //return inflater.inflate(R.layout.main_fragment, container, false);
 
-          binding= PopularRecyclerFragmentBinding.inflate(getLayoutInflater());
-        View rootView =binding.getRoot();
+        binding = PopularRecyclerFragmentBinding.inflate(getLayoutInflater());
+        View rootView = binding.getRoot();
 
         //
-        moviesGetController =  ((MyApplication) getActivity().getApplication()).moviesGetController;
-
+        moviesGetController = ((MyApplication) getActivity().getApplication()).moviesGetController;
 
         // Lookup the recyclerview in activity layout
         recyclerView = binding.rvMoviesPopular;
@@ -79,14 +81,14 @@ public class PopularRecyclerFragment extends Fragment {
         // Attach the adapter to the recyclerview to populate items
         recyclerView.setAdapter(adapter);
         // Set layout manager to position the items. LinearLayoutManager, GridLayoutManager , StaggeredGridLayoutManager
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity() ));
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         // That's all!
         binding.fabMoreMovPop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-             fetchMovies();
+                fetchMovies();
             }
         });
 
@@ -94,12 +96,12 @@ public class PopularRecyclerFragment extends Fragment {
             @Override
             public void onItemClick(View view, int position) {
                 System.out.println("MovieDetailsActivity onCreate");
-               Movie selMovie = movies.get(position);
-                Intent intent = new Intent(getActivity() , MovieDetailsActivity.class);
+                Movie selMovie = movies.get(position);
+                Intent intent = new Intent(getActivity(), MovieDetailsActivity.class);
                 Bundle extras = new Bundle();
                 extras.putParcelable(Consts.MOVIE, selMovie);
                 intent.putExtras(extras);
-                 startActivity(intent);
+                startActivity(intent);
 
             }
         });
@@ -124,15 +126,14 @@ public class PopularRecyclerFragment extends Fragment {
                 Intent intent = new Intent(getActivity(), DetailActivity.class);
                 Bundle extras = new Bundle();
                 extras.putParcelable(Consts.MOVIE, selMovie);
-                 intent.putExtras(extras);
+                intent.putExtras(extras);
                 intent.putExtra(Consts.IMAGE_TRANSITION_NAME, ViewCompat.getTransitionName(view));
 
                 //Shared animation
 
-                ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(getActivity(), view,  ViewCompat.getTransitionName(view));
+                ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(getActivity(), view, ViewCompat.getTransitionName(view));
                 // start the new activity
                 startActivity(intent, options.toBundle());
-
 
 
             }
@@ -141,26 +142,25 @@ public class PopularRecyclerFragment extends Fragment {
         return rootView;
     }
 
-public void fetchMovies()
-  {
-    ((MoviesActivity)getActivity()).loadingProgressBar.setVisibility(View.VISIBLE);
+    public void fetchMovies() {
+        ((MoviesActivity) getActivity()).loadingProgressBar.setVisibility(View.VISIBLE);
 
-    currentPage++;
-    if (currentPage > 100)
-        currentPage = 100;
+        currentPage++;
+        if (currentPage > 100)
+            currentPage = 100;
 
-    Observable<MoviesWraper> moviesCall = moviesGetController.getMoviesPopular(currentPage);
-    moviesCall.subscribe(PopularRecyclerFragment.this::onMovieFetchAddSuccess, PopularRecyclerFragment.this::onMovieFetchFailed);
+        Observable<MoviesWraper> moviesCall = moviesGetController.getMoviesPopular(currentPage);
+        moviesCall.subscribe(PopularRecyclerFragment.this::onMovieFetchAddSuccess, PopularRecyclerFragment.this::onMovieFetchFailed);
 
-  }
-    void onMovieFetchAddSuccess(MoviesWraper moviesWraper)
-    {
+    }
+
+    void onMovieFetchAddSuccess(MoviesWraper moviesWraper) {
         ArrayList<Movie> newItems = new ArrayList<Movie>();
-        System.out.println("WYNIK="+moviesWraper.getMovieList().size());
-        moviesWraper.getMovieList().forEach(movie ->  newItems.add(movie));
+        System.out.println("WYNIK=" + moviesWraper.getMovieList().size());
+        moviesWraper.getMovieList().forEach(movie -> newItems.add(movie));
         //set order for search
-        for(int a=0;a<movies.size();a++)
-            movies.get(a).order=a;
+        for (int a = 0; a < movies.size(); a++)
+            movies.get(a).order = a;
         //
         int curSize = adapter.getItemCount();
         movies.addAll(newItems);
@@ -170,8 +170,8 @@ public void fetchMovies()
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                ((MoviesActivity)getActivity()).loadingProgressBar.setVisibility(View.GONE);
-                Snackbar.make(recyclerView,"Added "+moviesWraper.getMovieList().size(),2000 ).show();
+                ((MoviesActivity) getActivity()).loadingProgressBar.setVisibility(View.GONE);
+                Snackbar.make(recyclerView, "Added " + moviesWraper.getMovieList().size(), 2000).show();
 
             }
         });
@@ -181,15 +181,14 @@ public void fetchMovies()
 
         e.printStackTrace();
         //
-        getActivity(). runOnUiThread(new Runnable() {
+        getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                ( (MoviesActivity)getActivity()).loadingProgressBar.setVisibility(View.GONE);
-                Snackbar.make(((MoviesActivity)getActivity()).loadingProgressBar,"Error",2000 ).show();
+                ((MoviesActivity) getActivity()).loadingProgressBar.setVisibility(View.GONE);
+                Snackbar.make(((MoviesActivity) getActivity()).loadingProgressBar, "Error", 2000).show();
             }
         });
     }
-
 
 
 }

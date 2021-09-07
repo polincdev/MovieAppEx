@@ -22,6 +22,8 @@ public interface MovieDao {
 
     @Query("SELECT * FROM Movie")
     ListenableFuture<List<Movie>> loadAll( );
+    @Query("SELECT * FROM Movie")
+    List<Movie> loadAllMovies( );
 
     @Query("SELECT * FROM Movie WHERE batch = :id")
     Single<List<Movie>> loadAllByBatchId(String id );

@@ -2,30 +2,27 @@ package com.polinc.movieappex.data;
 
 import com.polinc.movieappex.data.model.LoggedInUser;
 
-import javax.inject.Inject;
-
 /**
  * Class that requests authentication and user information from the remote data source and
  * maintains an in-memory cache of login status and user credentials information.
  */
 
-public class LoginRepositoryImpl {
+public class LoginRepositoryImpl implements LoginRepositoryInterface {
 
     private static volatile LoginRepositoryImpl instance;
 
-    private LoginDataSource dataSource;
+    private LoginDataSourceInterface dataSource;
 
     // If user credentials will be cached in local storage, it is recommended it be encrypted
     // @see https://developer.android.com/training/articles/keystore
     private LoggedInUser user = null;
 
     // private constructor : singleton access
-    @Inject
-    public LoginRepositoryImpl(LoginDataSource dataSource) {
+    public LoginRepositoryImpl(LoginDataSourceInterface dataSource) {
         this.dataSource = dataSource;
     }
 
-    public static LoginRepositoryImpl getInstance(LoginDataSource dataSource) {
+    public static LoginRepositoryImpl getInstance(LoginDataSourceImpl dataSource) {
         if (instance == null) {
             instance = new LoginRepositoryImpl(dataSource);
         }

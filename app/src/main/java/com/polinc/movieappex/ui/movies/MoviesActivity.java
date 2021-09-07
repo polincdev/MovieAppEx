@@ -90,7 +90,6 @@ public class MoviesActivity extends AppCompatActivity   {
         NavigationUI.setupWithNavController(navigationView, navController);
         NavigationUI.setupWithNavController(bottomNavigationView, navController);
 
-
         navController.addOnDestinationChangedListener(new NavController.OnDestinationChangedListener() {
             @Override
             public void onDestinationChanged(@NonNull NavController controller, @NonNull NavDestination destination, @Nullable Bundle arguments) {
@@ -223,7 +222,7 @@ public class MoviesActivity extends AppCompatActivity   {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         //outState.putParcelableArrayList(  Consts.MOVIE, (ArrayList<? extends Parcelable>) movies);
-        System.out.println("0000000000000000000");
+
 }
 
 
