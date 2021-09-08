@@ -1,5 +1,9 @@
 package com.polinc.movieappex.ui.login;
 
+import android.app.Activity;
+
+import androidx.fragment.app.testing.FragmentScenario;
+import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
@@ -21,15 +25,15 @@ import dagger.hilt.android.testing.HiltAndroidRule;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import dagger.hilt.android.testing.HiltTestApplication;
 
-@RunWith(AndroidJUnit4.class)
+@RunWith(RobolectricTestRunner.class) // 3
 public class LoginActivityViewTest extends TestCase {
 
       @Rule
     public ActivityScenarioRule activityScenarioRule = new ActivityScenarioRule(LoginActivity.class);
 
+    FragmentScenario fragmentScenario;
 
 
-/*
 
 
     @Test
@@ -42,7 +46,7 @@ public class LoginActivityViewTest extends TestCase {
 
             }
         });
-    }
+    }/*
     @Test
     public void testActScenarioLaunchStates(){
         try(ActivityScenario<LoginActivity> scenario = ActivityScenario.launch(LoginActivity.class)) {
